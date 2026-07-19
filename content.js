@@ -9,6 +9,8 @@ class YouTubeSubtitleTranslator {
     this.targetLang = 'zh-CN';
     this.ttsEnabled = false;
     this.ttsVoice = null;
+    this.ttsTimer = null;
+    this.currentAudio = null;
     this.translationCache = new Map();
     
     this.init();
@@ -190,18 +192,21 @@ class YouTubeSubtitleTranslator {
 
   speakVietnamese(text) {
     if (!this.ttsEnabled || this.targetLang !== 'vi' || !('speechSynthesis' in window)) return;
-    this.speakGemini(text).catch(error => console.error('[Gemini TTS] Không phát được audio Gemini:', error));
+    clearTimeout(this.ttsTimer);
+    this.ttsTimer = setTimeout(() => this.speakGemini(text).catch(error => console.error('[Gemini TTS] Không phát được audio Gemini:', error)), 250);
   }
 
   async speakGemini(text) {
     const result = await new Promise(resolve => chrome.runtime.sendMessage({action: 'gemini_tts', text}, resolve));
     if (!result || !result.success) throw new Error(result?.error || 'Gemini TTS endpoint unavailable');
+    if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio = null; }
     const audio = new Audio(URL.createObjectURL(new Blob([new Uint8Array(result.bytes)], {type: 'audio/wav'})));
+    this.currentAudio = audio;
     const video = document.querySelector('video');
     const oldVolume = video ? video.volume : null;
     if (video) video.volume = Math.min(oldVolume, 0.15);
     try { await audio.play(); await new Promise(resolve => { audio.onended = resolve; audio.onerror = resolve; }); }
-    finally { if (video && oldVolume !== null) video.volume = oldVolume; URL.revokeObjectURL(audio.src); }
+    finally { if (video && oldVolume !== null) video.volume = oldVolume; if (this.currentAudio === audio) this.currentAudio = null; URL.revokeObjectURL(audio.src); }
   }
 
 }
