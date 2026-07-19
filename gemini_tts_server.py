@@ -12,6 +12,9 @@ def wav(pcm, rate=24000):
     return data + pcm
 
 class Handler(BaseHTTPRequestHandler):
+    def do_OPTIONS(self):
+        self.send_response(204); self.send_header('Access-Control-Allow-Origin', '*'); self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS'); self.send_header('Access-Control-Allow-Headers', 'Content-Type'); self.end_headers()
+
     def do_POST(self):
         if self.path != '/tts': self.send_error(404); return
         if not KEY: self.send_error(503, 'GEMINI_API_KEY is not configured'); return
@@ -24,7 +27,7 @@ class Handler(BaseHTTPRequestHandler):
             with urlopen(req, timeout=30) as r: result = json.load(r)
             pcm = base64.b64decode(result['candidates'][0]['content']['parts'][0]['inlineData']['data'])
             audio = wav(pcm)
-            self.send_response(200); self.send_header('Content-Type','audio/wav'); self.send_header('Content-Length',str(len(audio))); self.end_headers(); self.wfile.write(audio)
+            self.send_response(200); self.send_header('Access-Control-Allow-Origin','*'); self.send_header('Content-Type','audio/wav'); self.send_header('Content-Length',str(len(audio))); self.end_headers(); self.wfile.write(audio)
         except Exception as e: self.send_error(502, str(e))
     def log_message(self, *_): pass
 
