@@ -22,7 +22,7 @@ class YouTubeSubtitleTranslator {
     // 加载设置
     chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
       this.enabled = result.enabled !== false;
-      this.targetLang = result.targetLang || 'zh-CN';
+      this.targetLang = result.targetLang || 'vi';
       this.ttsEnabled = result.ttsEnabled !== false;
       
       if (this.enabled) {

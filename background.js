@@ -6,9 +6,13 @@ chrome.runtime.onInstalled.addListener(() => {
   // 设置默认配置
   chrome.storage.sync.set({
     enabled: true,
-    targetLang: 'zh-CN',
+    targetLang: 'vi',
     ttsEnabled: true
   });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  chrome.storage.sync.set({targetLang: 'vi', ttsEnabled: true});
 });
 
 // 监听来自 content script 的消息

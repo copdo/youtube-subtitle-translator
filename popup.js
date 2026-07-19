@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 加载保存的设置
   chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
     enableToggle.checked = result.enabled !== false;
-    targetLangSelect.value = result.targetLang || 'zh-CN';
+    targetLangSelect.value = result.targetLang || 'vi';
     document.getElementById('ttsEnabled').checked = result.ttsEnabled !== false;
   });
 
