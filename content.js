@@ -7,6 +7,8 @@ class YouTubeSubtitleTranslator {
     this.observer = null;
     this.enabled = true;
     this.targetLang = 'zh-CN';
+    this.ttsEnabled = false;
+    this.ttsVoice = null;
     this.translationCache = new Map();
     
     this.init();
@@ -16,9 +18,10 @@ class YouTubeSubtitleTranslator {
     console.log('[YT Translator] 初始化...');
     
     // 加载设置
-    chrome.storage.sync.get(['enabled', 'targetLang'], (result) => {
+    chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
       this.enabled = result.enabled !== false;
       this.targetLang = result.targetLang || 'zh-CN';
+      this.ttsEnabled = result.ttsEnabled === true;
       
       if (this.enabled) {
         this.start();
@@ -39,6 +42,7 @@ class YouTubeSubtitleTranslator {
         this.targetLang = changes.targetLang.newValue;
         this.translationCache.clear();
       }
+      if (changes.ttsEnabled) this.ttsEnabled = changes.ttsEnabled.newValue === true;
     });
   }
 
@@ -158,6 +162,7 @@ class YouTubeSubtitleTranslator {
         
         // 更新显示
         this.updateTranslatedSubtitle(translatedText);
+        this.speakVietnamese(translatedText);
       }
     } catch (error) {
       console.error('[YT Translator] 翻译失败:', error);
@@ -181,6 +186,18 @@ class YouTubeSubtitleTranslator {
         </span>
       </div>
     `;
+  }
+
+  speakVietnamese(text) {
+    if (!this.ttsEnabled || this.targetLang !== 'vi' || !('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN';
+    const voices = speechSynthesis.getVoices();
+    this.ttsVoice = voices.find(v => /HoaiMyNeural|NamMinhNeural/i.test(v.name)) ||
+      voices.find(v => /^vi(-|_)/i.test(v.lang));
+    if (this.ttsVoice) utterance.voice = this.ttsVoice;
+    speechSynthesis.speak(utterance);
   }
 }
 

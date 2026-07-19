@@ -6,9 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusDiv = document.getElementById('status');
 
   // 加载保存的设置
-  chrome.storage.sync.get(['enabled', 'targetLang'], (result) => {
+  chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
     enableToggle.checked = result.enabled !== false;
     targetLangSelect.value = result.targetLang || 'zh-CN';
+    document.getElementById('ttsEnabled').checked = result.ttsEnabled === true;
   });
 
   // 保存设置
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settings = {
       enabled: enableToggle.checked,
       targetLang: targetLangSelect.value
+      ,ttsEnabled: document.getElementById('ttsEnabled').checked
     };
 
     chrome.storage.sync.set(settings, () => {
@@ -36,4 +38,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // 监听设置变化
   enableToggle.addEventListener('change', saveSettings);
   targetLangSelect.addEventListener('change', saveSettings);
+  document.getElementById('ttsEnabled').addEventListener('change', saveSettings);
 });
