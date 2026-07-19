@@ -194,9 +194,9 @@ class YouTubeSubtitleTranslator {
   }
 
   async speakGemini(text) {
-    const response = await fetch('http://127.0.0.1:8765/tts', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
-    if (!response.ok) throw new Error('Gemini TTS endpoint unavailable');
-    const audio = new Audio(URL.createObjectURL(await response.blob()));
+    const result = await new Promise(resolve => chrome.runtime.sendMessage({action: 'gemini_tts', text}, resolve));
+    if (!result || !result.success) throw new Error(result?.error || 'Gemini TTS endpoint unavailable');
+    const audio = new Audio(URL.createObjectURL(new Blob([new Uint8Array(result.bytes)], {type: 'audio/wav'})));
     const video = document.querySelector('video');
     const oldVolume = video ? video.volume : null;
     if (video) video.volume = Math.min(oldVolume, 0.15);
