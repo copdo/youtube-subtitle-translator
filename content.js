@@ -197,11 +197,18 @@ class YouTubeSubtitleTranslator {
     const response = await fetch('http://127.0.0.1:8765/tts', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
     if (!response.ok) throw new Error('Gemini TTS endpoint unavailable');
     const audio = new Audio(URL.createObjectURL(await response.blob()));
-    await audio.play();
+    const video = document.querySelector('video');
+    const oldVolume = video ? video.volume : null;
+    if (video) video.volume = Math.min(oldVolume, 0.15);
+    try { await audio.play(); await new Promise(resolve => { audio.onended = resolve; audio.onerror = resolve; }); }
+    finally { if (video && oldVolume !== null) video.volume = oldVolume; URL.revokeObjectURL(audio.src); }
   }
 
   speakBrowser(text) {
     if (!('speechSynthesis' in window)) return;
+    const video = document.querySelector('video');
+    const oldVolume = video ? video.volume : null;
+    if (video) video.volume = Math.min(oldVolume, 0.15);
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'vi-VN';
@@ -209,6 +216,7 @@ class YouTubeSubtitleTranslator {
     this.ttsVoice = voices.find(v => /HoaiMyNeural|NamMinhNeural/i.test(v.name)) ||
       voices.find(v => /^vi(-|_)/i.test(v.lang));
     if (this.ttsVoice) utterance.voice = this.ttsVoice;
+    utterance.onend = () => { if (video && oldVolume !== null) video.volume = oldVolume; };
     speechSynthesis.speak(utterance);
   }
 }
