@@ -190,6 +190,18 @@ class YouTubeSubtitleTranslator {
 
   speakVietnamese(text) {
     if (!this.ttsEnabled || this.targetLang !== 'vi' || !('speechSynthesis' in window)) return;
+    this.speakGemini(text).catch(() => this.speakBrowser(text));
+  }
+
+  async speakGemini(text) {
+    const response = await fetch('http://127.0.0.1:8765/tts', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text})});
+    if (!response.ok) throw new Error('Gemini TTS endpoint unavailable');
+    const audio = new Audio(URL.createObjectURL(await response.blob()));
+    await audio.play();
+  }
+
+  speakBrowser(text) {
+    if (!('speechSynthesis' in window)) return;
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'vi-VN';

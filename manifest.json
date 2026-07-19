@@ -10,6 +10,7 @@
   "host_permissions": [
     "https://www.youtube.com/*",
     "https://translate.googleapis.com/*"
+    ,"http://127.0.0.1:8765/*"
   ],
   "content_scripts": [
     {
