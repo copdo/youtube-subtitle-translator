@@ -3,6 +3,7 @@
 import base64, json, os, struct
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
 KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -28,6 +29,9 @@ class Handler(BaseHTTPRequestHandler):
             pcm = base64.b64decode(result['candidates'][0]['content']['parts'][0]['inlineData']['data'])
             audio = wav(pcm)
             self.send_response(200); self.send_header('Access-Control-Allow-Origin','*'); self.send_header('Content-Type','audio/wav'); self.send_header('Content-Length',str(len(audio))); self.end_headers(); self.wfile.write(audio)
+        except HTTPError as e:
+            detail = e.read().decode(errors='replace')
+            self.send_error(502, f'Gemini API {e.code}: {detail[:500]}')
         except Exception as e: self.send_error(502, str(e))
     def log_message(self, *_): pass
 
