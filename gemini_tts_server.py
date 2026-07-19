@@ -5,7 +5,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
-MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-2.5-flash-preview-tts")
+MODEL = os.getenv("GEMINI_TTS_MODEL", "gemini-3.1-flash-tts-preview")
 KEY = os.environ.get("GEMINI_API_KEY", "")
 
 def wav(pcm, rate=24000):
@@ -23,8 +23,8 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))))
             text = str(body.get('text', '')).strip()
             if not text or len(text) > 2000: raise ValueError('text must be 1..2000 chars')
-            payload = {"contents":[{"parts":[{"text":text}]}],"generationConfig":{"responseModalities":["AUDIO"],"speechConfig":{"voiceConfig":{"prebuiltVoiceConfig":{"voiceName":body.get('voice','Kore')}}}}}
-            req = Request(f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={KEY}', data=json.dumps(payload).encode(), headers={'Content-Type':'application/json'})
+            payload = {"contents":[{"parts":[{"text":"Read aloud naturally in Vietnamese:\n" + text}]}],"generationConfig":{"responseModalities":["AUDIO"],"speechConfig":{"voiceConfig":{"prebuiltVoiceConfig":{"voiceName":body.get('voice','Kore')}}}}}
+            req = Request(f'https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent', data=json.dumps(payload).encode(), headers={'Content-Type':'application/json','x-goog-api-key':KEY})
             with urlopen(req, timeout=30) as r: result = json.load(r)
             pcm = base64.b64decode(result['candidates'][0]['content']['parts'][0]['inlineData']['data'])
             audio = wav(pcm)
