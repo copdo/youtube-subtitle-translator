@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     chrome.storage.sync.set(settings, () => {
-      showStatus('设置已保存 ✓', 'success');
+      showStatus('Đã lưu cài đặt ✓', 'success');
     });
   };
 

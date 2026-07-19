@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube 实时字幕翻译",
+  "name": "Dịch phụ đề YouTube",
   "version": "1.0.0",
-  "description": "实时翻译 YouTube 视频字幕为中文",
+  "description": "Dịch phụ đề YouTube theo thời gian thực và đọc tiếng Việt",
   "permissions": [
     "storage",
     "activeTab"
