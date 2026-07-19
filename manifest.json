@@ -13,9 +13,15 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
       "run_at": "document_end"
     }
   ],
@@ -34,5 +40,11 @@
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "youtube-subtitle-translator@mstarcorp.vn",
+      "strict_min_version": "109.0"
+    }
   }
 }
