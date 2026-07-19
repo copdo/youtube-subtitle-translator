@@ -6,7 +6,8 @@ chrome.runtime.onInstalled.addListener(() => {
   // 设置默认配置
   chrome.storage.sync.set({
     enabled: true,
-    targetLang: 'zh-CN'
+    targetLang: 'zh-CN',
+    ttsEnabled: true
   });
 });
 

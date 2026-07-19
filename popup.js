@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
     enableToggle.checked = result.enabled !== false;
     targetLangSelect.value = result.targetLang || 'zh-CN';
-    document.getElementById('ttsEnabled').checked = result.ttsEnabled === true;
+    document.getElementById('ttsEnabled').checked = result.ttsEnabled !== false;
   });
 
   // 保存设置

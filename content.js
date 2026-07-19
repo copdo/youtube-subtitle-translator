@@ -21,7 +21,7 @@ class YouTubeSubtitleTranslator {
     chrome.storage.sync.get(['enabled', 'targetLang', 'ttsEnabled'], (result) => {
       this.enabled = result.enabled !== false;
       this.targetLang = result.targetLang || 'zh-CN';
-      this.ttsEnabled = result.ttsEnabled === true;
+      this.ttsEnabled = result.ttsEnabled !== false;
       
       if (this.enabled) {
         this.start();
