@@ -190,7 +190,7 @@ class YouTubeSubtitleTranslator {
 
   speakVietnamese(text) {
     if (!this.ttsEnabled || this.targetLang !== 'vi' || !('speechSynthesis' in window)) return;
-    this.speakGemini(text).catch(() => this.speakBrowser(text));
+    this.speakGemini(text).catch(error => console.error('[Gemini TTS] Không phát được audio Gemini:', error));
   }
 
   async speakGemini(text) {
@@ -204,21 +204,6 @@ class YouTubeSubtitleTranslator {
     finally { if (video && oldVolume !== null) video.volume = oldVolume; URL.revokeObjectURL(audio.src); }
   }
 
-  speakBrowser(text) {
-    if (!('speechSynthesis' in window)) return;
-    const video = document.querySelector('video');
-    const oldVolume = video ? video.volume : null;
-    if (video) video.volume = Math.min(oldVolume, 0.15);
-    speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'vi-VN';
-    const voices = speechSynthesis.getVoices();
-    this.ttsVoice = voices.find(v => /HoaiMyNeural|NamMinhNeural/i.test(v.name)) ||
-      voices.find(v => /^vi(-|_)/i.test(v.lang));
-    if (this.ttsVoice) utterance.voice = this.ttsVoice;
-    utterance.onend = () => { if (video && oldVolume !== null) video.volume = oldVolume; };
-    speechSynthesis.speak(utterance);
-  }
 }
 
 // 初始化
